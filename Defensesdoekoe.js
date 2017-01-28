@@ -200,3 +200,134 @@ myInfo.melding();
 myInfo.logg();
 	
 })()
+						} 
+					}
+				}
+				this.unitsTur = this.unitsTur.concat(this.unitsUtover);
+			}
+			
+			this.unitsTotal = [];
+			this.unitsTotalTotal = 0;
+			this.unitsTurTotal = 0;
+			this.koords = [];
+			this.product = [];
+			for(this.i=0;this.i<this.unitsTur.length;this.i++) {
+				this.unitsTurTotal += this.unitsTur[this.i];
+				this.unitsTotal[this.i] = this.unitsHome[this.i] + this.unitsTur[this.i];
+				this.unitsTotalTotal += this.unitsTotal[this.i];
+				this.koords = this.koords.concat(/\d+\|\d+/.exec(that.page.document.getElementById('units_table').children[this.i+1].innerHTML));
+				this.product[this.i] = this.koords[this.i] + "\t" + this.unitsTotal[this.i] + "\t" + this.unitsTur[this.i] + "\t" + this.unitsHome[this.i];
+			}
+			
+			this.product = game_data.player.name + "\t"+"Total"+"\t"+"Out"+"\t"+"Home"+"\t"+this.unitsHomeTotal+"\t"+new Date()+"\n"+ this.product.join("\n")+"\n"+"Total:"+"\t"+this.unitsTotalTotal+"\t"+this.unitsTurTotal+"\t"+this.unitsHomeTotal;
+			that.informasjon = true;
+		};
+		
+		this.group = false;
+		for(this.i=0;this.i<that.page.document.getElementsByClassName('group_tooltip group-menu-item').length;this.i++) {
+			if(that.page.document.getElementsByClassName('group_tooltip group-menu-item')[this.i].innerHTML.indexOf("all")!=-1) {
+				this.groupIndex = that.page.document.getElementsByClassName('group_tooltip group-menu-item')[this.i];
+				if(that.page.document.getElementsByClassName('group_tooltip group-menu-item')[this.i].innerHTML.indexOf("&lt;")!=-1) {
+					this.group = true;
+				}
+			}
+		}
+		
+		if(this.group) {
+			this.troopsHome();
+		}else{
+			this.groupIndex.click();
+			that.readyFunction(that.page,this.troopsHome);
+		}
+	};
+	
+	this.melding = function() {
+		that = this;
+		this.infoInt = setInterval(function(){
+			if(that.informasjon) {
+				clearInterval(that.infoInt);
+				if(game_data.player.name != "test1") {
+					that.page.document.getElementsByClassName('menu-item')[3].children[0].click();
+					that.readyFunction(that.page,that.search);
+				}else{
+					that.ferdig = true;
+				}
+			}
+		},10);
+		
+		this.search = function() {
+			this.bug1 = "code";
+			this.product = "["+this.bug1+"]" + this.product + "\n" + new Date() + "[/"+this.bug1+"]";
+			this.findSwitch = false;
+			this.find = function() {
+				this.rad = that.page.document.getElementById('select_all').parentNode.parentNode.parentNode.children;
+				for(this.i=0;this.i<this.rad.length-1;this.i++) {
+					if(this.rad[this.i+1].children[0].children[1].innerHTML.indexOf("Defence update")!=-1) {
+						if(this.rad[this.i+1].children[1].children[1].innerHTML == receiver) {
+							this.mldIndex = this.i+1;
+							this.findSwitch = true;
+						}	
+					}
+				}
+				if(this.findSwitch) {
+					return true;
+				}else{
+					return false;
+				}
+			};
+			
+			if(this.find()) {
+				this.rad[this.mldIndex].children[0].children[1].click();
+				that.readyFunction(that.page,that.sendMld);
+			}else{
+				that.page.location.href='/game.php?&screen=mail&mode=new',"page","height=300,width=100";
+				that.readyFunction(that.page,that.newMld);
+			}
+		};
+		
+		this.sendMld = function() {
+			that.page.IGM.view.beginReply();
+			that.page.document.getElementById('message').value= this.product;
+			setTimeout(function() {
+				that.page.document.getElementsByClassName('btn')[1].click();
+				that.ferdig = true;
+			},1000)
+		};
+		
+		this.newMld = function() {
+			that.page.document.getElementById('to').value = receiver;
+			that.page.document.getElementsByName('subject')[0].value = "Defence update";
+			that.page.document.getElementById('message').value = this.product;
+			setTimeout(function() {
+				that.page.document.getElementsByClassName('btn')[1].click();
+				setTimeout(function() {
+					that.ferdig = true;
+				},2000);
+			},1000)
+		};
+	};
+	
+	this.logg = function() {
+		document.getElementById('content_value').innerHTML = "Please wait";
+		this.ferdigInt = setInterval(function() {
+			if(document.getElementById('content_value').innerHTML.length<20) {
+				document.getElementById('content_value').innerHTML += ".";
+			}else{
+				document.getElementById('content_value').innerHTML = "Please wait";
+			}
+			if(that.ferdig) {
+				clearInterval(that.ferdigInt);
+				document.getElementById('content_value').innerHTML = "Thanks!";
+				that.page.close();
+			}
+		},150)
+	};
+	
+}
+
+myInfo = new info();
+myInfo.openPage();
+myInfo.melding();
+myInfo.logg();
+	
+})()
